@@ -1,5 +1,5 @@
-# mcserver-status-discord
-A JS Discord bot which tells you if the server if up
+# Minecraft Server Status ~ Discord
+A Discord.js bot which tells you if the server if up
 
 ## Commands
 Information can be found in commands/README.md
