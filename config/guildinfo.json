@@ -1,0 +1,11 @@
+{
+    "_comment": "Server snowflake IDs and prefix",
+    "_default": {
+        "prefix": "mcstatus",
+        "utcOffset": "00:00"
+    },
+    "358536623257812992": {
+        "prefix": "mcstatus",
+        "utcOffset": "+07:00"
+    }
+}

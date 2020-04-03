@@ -1,0 +1,24 @@
+{
+  "name": "mc_server_uptime",
+  "version": "1.0.0",
+  "description": "A Discord bot which tells you if the server if up",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "discord",
+    "minecraft",
+    "server"
+  ],
+  "author": "cipherix",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^12.0.2",
+    "fuzzaldrin": "^2.1.0",
+    "json-stringify-safe": "^5.0.1",
+    "moment": "^2.24.0",
+    "tcp-ping": "^0.1.1"
+  }
+}
