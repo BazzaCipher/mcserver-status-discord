@@ -6,7 +6,7 @@
  * It handles the statements 'mcstatus set <subcommand> <arguments>'
  * 
  * Remember to modify the ./commands/set/deps.js isValid and coerceInput
- * switch statements
+ * switch statements, as well as the dependencies in guildinfo.json
  */
 
 /**

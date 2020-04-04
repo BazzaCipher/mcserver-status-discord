@@ -110,8 +110,6 @@ function mcstatus (messageArgs, message, options, cb) {
 
             let matches
             const jsonres = JSON.parse(res)
-            const localtime = moment()
-                .utcOffset(getGuildInfo(guild.id).utcOffset)
             const sentObject = {}
 
             sentObject.content = `\`${jsonres.hostname || jsonres.ip}\` is **${jsonres.online ? 'online': 'offline'}**`
@@ -119,7 +117,7 @@ function mcstatus (messageArgs, message, options, cb) {
             sentObject.embed = formatMain(
                 jsonres, 
                 new MessageEmbed({
-                    timestamp: localtime.toISOString(),
+                    timestamp: moment().toISOString(),
                     thumbnail: {}
                 })
             )

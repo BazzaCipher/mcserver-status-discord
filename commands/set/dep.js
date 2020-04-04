@@ -10,8 +10,7 @@ const isValid = function(prop, val) {
     if (!prop || !val) return false
 
     switch(prop) {
-        case 'utcOffset':
-            return /^-?\d+:?\d+$|^-?\d{1,2}$/.test(val)
+        case 'prefix':
         default:
             return /\S+/.test(val)
     }
@@ -21,8 +20,6 @@ const isValid = function(prop, val) {
 const coerceInput = function(prop, input) {
 
     switch(prop) {
-        case 'utcOffset':
-            return moment().utcOffset(parseInt(input)).format('Z')
         case 'prefix':  // I don't ignore this case
         default:
             return input
