@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "A Discord bot which tells you if the server if up",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/BazzaCipher/mcserver-status-discord.git"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
