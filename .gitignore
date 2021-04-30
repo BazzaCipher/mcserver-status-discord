@@ -1,2 +1,6 @@
-node_modules/*
-config/*
+/node_modules/
+/config/
+
+# logs
+/logs/
+!logs/.gitkeep

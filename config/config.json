@@ -1,8 +1,8 @@
 {
     "name": "Minecraft Server Status",
-    "id": "181818181818181818",
-    "secret": "SECRET",
-    "token": "TOKEN",
-    "authlink": "https://discordapp.com/oauth2/authorize?client_id=CLIENT_ID&scope=bot",
-    "icon_url": "https://myfavicon.url/path/to/thing.png"
+    "id": "692596447584976946",
+    "secret": "siGL3F1BWxd9bXT9yWwITDN2X42T0F3c",
+    "token": "NjkyNTk2NDQ3NTg0OTc2OTQ2.Xnw0tA.Ee-oehqJEw88yzUY5F4AymX0teY",
+    "authlink": "https://discordapp.com/oauth2/authorize?client_id=692596447584976946&scope=bot",
+    "icon_url": "https://cdn.discordapp.com/avatars/692596447584976946/fe04285b59073875013bece705e7c43d.webp?size=128"
 }
