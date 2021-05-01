@@ -1,5 +1,6 @@
 // Dependencies
 
+const env = require('dotenv');
 const { Client } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
@@ -75,6 +76,10 @@ client.once('error', (e) => {
 //     channel.send(`Thanks for inviting me into this server!`);
 // });
 
+// Init
+
+env.config();
+
 client.on('message', (message) => {
   const { guild, content } = message;
   const args = [message.content.toLowerCase(),
@@ -89,12 +94,12 @@ client.on('message', (message) => {
     if (args[2] === 'help') { return currentCommands.get('help')(args.slice(0, 3), message, returnHandler); }
     if (!args[3]) { return currentCommands.get('_')(args, message, returnHandler); }
 
-    return returnHandler(null, {
+    returnHandler(null, {
       content: 'Add me to your server! ^-^',
       embed: {
         author: {
           name: config.name,
-          url: `https://discordapp.com/oauth2/authorize?client_id=${config.id}&scope=bot`,
+          url: `https://discordapp.com/oauth2/authorize?client_id=${process.env.CLIENT_ID}&scope=bot`,
         },
         title: 'Add me to your server ! ^-^',
         description: 'It\'s just me ;-;',
@@ -161,4 +166,4 @@ process.on('uncaughtException', exitHandler);
 
 // Post handling
 
-client.login(config.token);
+client.login(process.env.CLIENT_TOKEN);

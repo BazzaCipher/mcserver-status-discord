@@ -17,15 +17,12 @@
  * @param {boolean} options.unset - Whether or not to unset the specified setting
  */
 
-const { resolve } = require('path');
 const moment = require('moment');
-
-const resolveLocal = resolve.bind(null, __dirname);
 
 const {
   isValid, coerceInput, revertCamelcase, closestSetting,
-} = require(resolveLocal('./dep.js'));
-const { getGuildInfo, writeGuildInfo } = require(resolveLocal('../../files/GuildInfo.js'));
+} = require('./dep');
+const { getGuildInfo, writeGuildInfo } = require('../../files/GuildInfo.js');
 
 const help = function (messageArgs, message, opts, cb) {
   if (!opts.embed) { opts.embed = {}; }
