@@ -1,6 +1,7 @@
 // Dependencies
 
 const env = require('dotenv');
+const { createServer } = require('http');
 const { Client } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
@@ -167,3 +168,5 @@ process.on('uncaughtException', exitHandler);
 // Post handling
 
 client.login(process.env.CLIENT_TOKEN);
+
+(createServer((req, res) => res.end(200)).listen(process.env.PORT || 3000));
