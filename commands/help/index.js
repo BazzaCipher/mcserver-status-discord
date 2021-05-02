@@ -37,18 +37,16 @@ function noArgs(_, message, sentObject, cb) {
 
   if (typeof sentObject.embed.fields !== 'object') sentObject.embed.fields = [];
 
-  sentObject.embed.field.push({
-    name: '\'mcstatus <url|ip>\'',
+  sentObject.embed.fields.push({
+    name: '\'mcstatus <url | ip>\'',
     value: '\'mcstatus mc.hypixel.net\' or \'mcstatus 127.0.0.1:30\'',
   });
 
   for (const key of helpCommands.keys()) {
-    commandReturns.push((() => new Promise((resolve) => {
-      return resolve({
-        name: `${key}`,
-        value: commandsDesc[key],
-      });
-    })
+    commandReturns.push((() => new Promise((resolve) => resolve({
+      name: `${key}`,
+      value: commandsDesc[key],
+    }))
     )());
   }
 

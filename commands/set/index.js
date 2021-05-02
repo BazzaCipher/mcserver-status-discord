@@ -75,7 +75,7 @@ const display = function (messageArgs, message, opts, cb) {
     embed: {
       title: `*${guild.name}* | Settings`,
       description: 'All the settings, one by one',
-      timestamp: moment().utcOffset(info.utcOffset),
+      timestamp: moment().utcOffset(info.utcOffset || 0),
       fields: [],
     },
   };
@@ -162,7 +162,7 @@ const set = function (messageArgs, message, opts, cb) {
   }
 
   if (opts.unset) {
-    coercedVal = getGuildInfo('_default')[closest];
+    coercedVal = getGuildInfo('')[closest];
   }
 
   const temp = info[closest]; // Temporary variable
