@@ -1,3 +1,6 @@
+# Everything except .gitkeep
+!.gitkeep
+
 # Logs
 logs
 *.log
