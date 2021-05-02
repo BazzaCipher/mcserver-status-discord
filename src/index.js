@@ -7,11 +7,11 @@ const { resolve } = require('path');
 
 const resolveLocal = resolve.bind(null, __dirname);
 
-const { getGuildInfo } = require(resolveLocal('./files/GuildInfo.js'));
-const Commands = require(resolveLocal('./files/Commands.js'));
+const { getGuildInfo } = require('./guildInfo');
+const Commands = require('./commands');
 
 // Configuration files
-const config = require(resolveLocal('./config/config.json'));
+const config = require('../config/config.json');
 
 // Runtime variables
 

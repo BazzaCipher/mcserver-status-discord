@@ -4,19 +4,18 @@
  * Accepts hostname or ip
  */
 
-const { readFileSync } = require('fs');
+const stringify = require('json-stringify-safe');
+const { readFileSync, appendFileSync } = require('fs');
 const { ping } = require('tcp-ping');
 const { get } = require('https');
 const { MessageEmbed } = require('discord.js');
 const { resolve } = require('path');
-const { getGuildInfo } = require('../files/GuildInfo.js');
 
 const resolveLocal = resolve.bind(null, __dirname);
 
 const moment = require('moment');
 
 const endpoint = 'https://api.mcsrvstat.us/2/';
-const stringify = require('json-stringify-safe');
 
 // https://api.mcsrvstat.us/
 function formatMain(object, prototypeEmbed = new MessageEmbed()) {

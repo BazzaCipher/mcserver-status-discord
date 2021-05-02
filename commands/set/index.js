@@ -6,7 +6,7 @@
  * It handles the statements 'mcstatus set <subcommand> <arguments>'
  *
  * Remember to modify the ./commands/set/deps.js isValid and coerceInput
- * switch statements, as well as the dependencies in guildinfo.json
+ * switch statements, as well as the dependencies in guildInfo.json
  */
 
 /**
@@ -22,7 +22,7 @@ const moment = require('moment');
 const {
   isValid, coerceInput, revertCamelcase, closestSetting,
 } = require('./dep');
-const { getGuildInfo, writeGuildInfo } = require('../../files/GuildInfo.js');
+const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo.js');
 
 const help = function (messageArgs, message, opts, cb) {
   if (!opts.embed) { opts.embed = {}; }

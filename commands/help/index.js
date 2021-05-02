@@ -17,7 +17,7 @@ const { resolve } = require('path');
 
 const resolveLocal = resolve.bind(null, __dirname);
 
-const Commands = require(resolveLocal('../../files/Commands.js'));
+const Commands = require('../../src/commands');
 const commands = new Commands();
 
 function selfArgs(_, message, sentObject, cb) {
@@ -70,7 +70,7 @@ function otherArgs(messageArgs, message, prototype, cb) {
 
 function help(args, message, { content, embed, prefix }, cb) {
   if (typeof arguments[2] === 'function') cb = arguments[2];
-  if (!prefix) prefix = require('../../config/guildInfo.json')._default.prefix;
+  if (!prefix) prefix = require('../../config/guildInfo.json')[''].prefix;
 
   const prototype = {
     content: content || `*'${prefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
