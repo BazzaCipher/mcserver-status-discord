@@ -167,6 +167,7 @@ process.on('uncaughtException', exitHandler);
 
 // Post handling
 
-client.login(process.env.CLIENT_TOKEN);
+createServer((_, res) => res.end('ok'))
+.listen(process.env.PORT || 3000);
 
-(createServer((req, res) => res.end(200)).listen(process.env.PORT || 3000));
+client.login(process.env.CLIENT_TOKEN);
