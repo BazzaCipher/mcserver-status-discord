@@ -1,0 +1,9 @@
+{
+    "_comment": "Server snowflake IDs and prefix",
+    "": {
+        "prefix": "mcstatus"
+    },
+    "358536623257812992": {
+        "prefix": "mcstatus"
+    }
+}
