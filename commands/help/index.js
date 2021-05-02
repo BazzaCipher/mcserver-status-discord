@@ -18,13 +18,14 @@ const { resolve } = require('path');
 const resolveLocal = resolve.bind(null, __dirname);
 
 const Commands = require('../../src/commands');
+
 const commands = new Commands();
+const commandsDesc = require('../../config/commandDesc.json');
 
 function selfArgs(_, message, sentObject, cb) {
-  if (typeof sentObject === 'function') cb = sentObject;
+  sentObject.embed.description = commandsDesc.help;
 
-  sentObject.embed.description = require(resolve(__dirname, './package.json')).description;
-
+  if (typeof sentObject === 'function') return sentObject(null, sentObject, message.channel);
   return cb(null, sentObject, message.channel);
 }
 
@@ -34,15 +35,18 @@ function noArgs(_, message, sentObject, cb) {
   // Ignore special case
   helpCommands.delete('_');
 
-  if (typeof sentObject.embed.fields !== 'array') sentObject.embed.fields = [];
+  if (typeof sentObject.embed.fields !== 'object') sentObject.embed.fields = [];
+
+  sentObject.embed.field.push({
+    name: '\'mcstatus <url|ip>\'',
+    value: '\'mcstatus mc.hypixel.net\' or \'mcstatus 127.0.0.1:30\'',
+  });
 
   for (const key of helpCommands.keys()) {
     commandReturns.push((() => new Promise((resolve) => {
-      const { description } = require(resolveLocal(`../${key}/package.json`));
-
       return resolve({
         name: `${key}`,
-        value: description,
+        value: commandsDesc[key],
       });
     })
     )());

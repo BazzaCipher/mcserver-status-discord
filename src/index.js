@@ -112,7 +112,7 @@ client.on('message', (message) => {
   //
 
   console.log(`${new Date().toString()} | #${message.channel.name} @ ${guild.id} - \x1b[32m${content}\x1b[0m`);
-  appendFileSync(resolveLocal('./logs/error.log'),
+  appendFileSync(resolveLocal('../logs/error.log'),
     `${new Date().toString()} | #${message.channel.name} @ ${guild.id} - ${content}\r\n`);
 
   /*
