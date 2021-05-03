@@ -11,6 +11,8 @@ const { get } = require('https');
 const { MessageEmbed } = require('discord.js');
 const { resolve } = require('path');
 
+const { log, error } = console;
+
 const resolveLocal = resolve.bind(null, __dirname);
 
 const moment = require('moment');
@@ -52,7 +54,7 @@ function formatFound(object, prototypeEmbed) {
 function formatMain(object, prototypeEmbed = new MessageEmbed()) {
   // Must be able to handle both cases
   if (typeof object !== 'object' || !(prototypeEmbed instanceof MessageEmbed)) {
-    console.log('\x1b[31mInternal Server Error: Invalid object or embed\x1b[0m');
+    log('\x1b[31mInternal Server Error: Invalid object or embed\x1b[0m');
     appendFileSync(resolveLocal('../logs/error.log'),
       `${new Date().toString()} | ${stringify(object, null, 4)} && ${stringify(prototypeEmbed, null, 4)}`);
     return { title: 'Whoops! Internal server error' };
@@ -84,17 +86,17 @@ function mcstatus(messageArgs, message, options, cb) {
       ncb(null, 'It seems something has failed on our end :(. We\'re already working on a solution', channel);
       appendFileSync(resolveLocal('../logs/error.log'), new Date().toString()
                 + stringify(response, (key, val) => {
-                  if (key === 'data') console.log(val, val instanceof Array);
+                  if (key === 'data') log(val, val instanceof Array);
                   if (key === 'data' && val instanceof Array) return `[${val.join(', ')}]`;
                   return val;
                 }, 4));
-      console.error(`\x1b[31mReceived ${response.statusMessage} from '${endpoint}${messageArgs[2]}'\x1b[0m`);
+      error(`\x1b[31mReceived ${response.statusMessage} from '${endpoint}${messageArgs[2]}'\x1b[0m`);
     });
 
     response.once('end', () => {
       if (res.startsWith('429')) {
         channel.send(`\`${messageArgs[2]}\` isn't a valid external IP or name`);
-        return console.log(`Rejected \x1b[33m${content}\x1b[0m`);
+        return log(`Rejected \x1b[33m${content}\x1b[0m`);
       }
 
       let matches;
@@ -122,7 +124,7 @@ function mcstatus(messageArgs, message, options, cb) {
         });
       }
 
-      channel.send(sentObject)
+      return channel.send(sentObject)
         .then((lastMessage) => {
           if (!jsonres.online) return;
 

@@ -17,7 +17,7 @@ const Commands = require('../../src/commands');
 
 const commands = new Commands();
 const commandsDesc = require('../../config/commandDesc.json');
-const { getGuildInfo } = require('../../config/guildInfo.json');
+const { getGuildInfo } = require('../../src/guildInfo');
 
 function selfArgs(_, message, sentObject, cb) {
   const resObject = sentObject;
@@ -38,20 +38,22 @@ function noArgs(_, message, sentObject, cb) {
   if (typeof resObject.embed.fields !== 'object') resObject.embed.fields = [];
 
   resObject.embed.fields.push({
-    name: '\'mcstatus <url | ip>\'',
+    name: '\'mcstatus < url | ip >\'',
     value: '\'mcstatus mc.hypixel.net\' or \'mcstatus 127.0.0.1:30\'',
   });
 
   Array.from(helpCommands.keys()).forEach((key) => {
-    commandReturns.push((() => new Promise((resolve) => resolve({
-      name: `${key}`,
-      value: commandsDesc[key],
-    }))));
+    commandReturns.push(new Promise((resolve) => {
+      resolve({
+        name: `${key}`,
+        value: commandsDesc[key],
+      });
+    }));
   });
 
   Promise.all(commandReturns)
     .then((fieldObjects) => {
-      Object.keys(fieldObjects).forEach((obj) => sentObject.embed.fields.push(obj));
+      fieldObjects.forEach((obj) => sentObject.embed.fields.push(obj));
 
       cb(null, sentObject, message.channel);
     });
@@ -78,7 +80,7 @@ function help(args, message, opts, cb) {
     content: content || `*'${nPrefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
     embed: embed || {
       color: 0xFFD500,
-      title: `Help ~ ${args.slice(3).join(' ')}`,
+      title: `Help ~ ${args.slice(3).join(' ') || 'All'}`,
       footer: {
         text: `'*${nPrefix} help <command>*'`,
       },

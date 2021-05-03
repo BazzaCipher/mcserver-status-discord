@@ -6,6 +6,8 @@ const { Client } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
 
+const { log, error } = console;
+
 const resolveLocal = resolve.bind(null, __dirname);
 
 const { getGuildInfo } = require('./guildInfo');
@@ -21,17 +23,15 @@ const client = new Client();
 
 // Function declarations
 
-const exitHandler = function (err) {
-  if (err instanceof Error) console.error(err);
-  else console.log(`Exiting with code ${err}`);
+function exitHandler(err) {
+  if (err instanceof Error) error(err);
+  else log(`Exiting with code ${err}`);
 
   client.destroy();
   process.exit();
-};
+}
 
-function returnHandler (err, message, channel) {
-  if (!process.argv.includes('-v') || !process.argv.includes('--verbose')) { message.content = null; }
-
+function returnHandler(err, message, channel) {
   if (!channel && !message.channel) {
     return new Error('No channel specified');
   }
@@ -41,20 +41,20 @@ function returnHandler (err, message, channel) {
     nchannel.send('');
     return new Error('No message');
   }
-  if (err) console.error(`\x1b[31mError ${err}\x1b[0m`);
+  if (err) error(`\x1b[31mError ${err}\x1b[0m`);
 
   nchannel.stopTyping();
 
   return nchannel.send(message);
-};
+}
 
 client.once('ready', () => {
   commands.all();
 
-  console.log(`\x1b[34;1m${config.name}\x1b[0m is now \x1b[32monline\x1b[0m`);
+  log(`\x1b[34;1m${config.name}\x1b[0m is now \x1b[32monline\x1b[0m`);
 });
 client.once('error', (e) => {
-  console.log(`Client returned error '${e.message}'`);
+  log(`Client returned error '${e.message}'`);
   process.exit(1);
 });
 
@@ -85,7 +85,7 @@ client.once('error', (e) => {
 env.config();
 
 client.on('message', (message) => {
-  const { guild, content } = message;
+  const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
     ...message.content.split(' ').map((e) => e.toLowerCase())];
   const currentCommands = commands.current;
@@ -93,7 +93,7 @@ client.on('message', (message) => {
   if (message.author.id === client.user.id) return;
 
   if (!guild) {
-    console.log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
+    log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
 
     if (args[2] === 'help') { currentCommands.get('help')(args.slice(0, 3), message, returnHandler); return; }
     if (!args[3]) { currentCommands.get('_')(args, message, returnHandler); return; }
@@ -116,7 +116,7 @@ client.on('message', (message) => {
   // Check write permission
   //
 
-  console.log(`${new Date().toString()} | #${message.channel.name} @ ${guild.id} - \x1b[32m${content}\x1b[0m`);
+  log(`${new Date().toString()} | #${message.channel.name} @ ${guild.id} - \x1b[32m${content}\x1b[0m`);
   appendFileSync(resolveLocal('../logs/error.log'),
     `${new Date().toString()} | #${message.channel.name} @ ${guild.id} - ${content}\r\n`);
 
@@ -125,7 +125,7 @@ client.on('message', (message) => {
     */
 
   channel.startTyping();
-  console.log('Passing through switch');
+  log('Passing through switch');
 
   /* ---- */
 
