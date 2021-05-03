@@ -35,12 +35,13 @@ const revertCamelcase = function (string) {
 const closestSetting = function (object, property, lowerLimit = 0.1, returnScore = false) {
   const resultArr = [];
 
-  Object.entries(object).forEach(entry => {
+  Object.entries(object).forEach((entry) => {
     const [prop] = entry;
     resultArr.push({
       prop,
       score: score(prop, property),
     });
+  });
 
   const closestVal = resultArr.sort((a, b) => b.score - a.score).shift();
 

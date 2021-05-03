@@ -13,46 +13,45 @@
  * The equivalent of 'man'
  */
 
-const { resolve } = require('path');
-
-const resolveLocal = resolve.bind(null, __dirname);
-
 const Commands = require('../../src/commands');
 
 const commands = new Commands();
 const commandsDesc = require('../../config/commandDesc.json');
+const { getGuildInfo } = require('../../config/guildInfo.json');
 
 function selfArgs(_, message, sentObject, cb) {
-  sentObject.embed.description = commandsDesc.help;
+  const resObject = sentObject;
 
-  if (typeof sentObject === 'function') return sentObject(null, sentObject, message.channel);
-  return cb(null, sentObject, message.channel);
+  resObject.embed.description = commandsDesc.help;
+
+  if (typeof sentObject === 'function') return sentObject(null, resObject, message.channel);
+  return cb(null, resObject, message.channel);
 }
 
 function noArgs(_, message, sentObject, cb) {
   const commandReturns = [];
   const helpCommands = commands.all();
+  const resObject = sentObject;
   // Ignore special case
   helpCommands.delete('_');
 
-  if (typeof sentObject.embed.fields !== 'object') sentObject.embed.fields = [];
+  if (typeof resObject.embed.fields !== 'object') resObject.embed.fields = [];
 
-  sentObject.embed.fields.push({
+  resObject.embed.fields.push({
     name: '\'mcstatus <url | ip>\'',
     value: '\'mcstatus mc.hypixel.net\' or \'mcstatus 127.0.0.1:30\'',
   });
 
-  for (const key of helpCommands.keys()) {
+  Array.from(helpCommands.keys()).forEach((key) => {
     commandReturns.push((() => new Promise((resolve) => resolve({
       name: `${key}`,
       value: commandsDesc[key],
-    }))
-    )());
-  }
+    }))));
+  });
 
   Promise.all(commandReturns)
     .then((fieldObjects) => {
-      for (const fieldObject of fieldObjects) { sentObject.embed.fields.push(fieldObject); }
+      Object.keys(fieldObjects).forEach((obj) => sentObject.embed.fields.push(obj));
 
       cb(null, sentObject, message.channel);
     });
@@ -67,31 +66,32 @@ function otherArgs(messageArgs, message, prototype, cb) {
 
   const func = commands.current.get(messageArgs[3]);
 
-  return func(...arguments);
+  return func(messageArgs, message, prototype, cb);
 }
 
-function help(args, message, { content, embed, prefix }, cb) {
-  if (typeof arguments[2] === 'function') cb = arguments[2];
-  if (!prefix) prefix = require('../../config/guildInfo.json')[''].prefix;
+function help(args, message, opts, cb) {
+  const { content, embed, prefix } = opts;
+  const nPrefix = prefix || getGuildInfo('').prefix;
+  const ncb = cb || opts;
 
   const prototype = {
-    content: content || `*'${prefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
+    content: content || `*'${nPrefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
     embed: embed || {
       color: 0xFFD500,
       title: `Help ~ ${args.slice(3).join(' ')}`,
       footer: {
-        text: `'*${prefix} help <command>*'`,
+        text: `'*${nPrefix} help <command>*'`,
       },
     },
   };
 
   // Each manages their own output; the cb is the returnHandler in ./index.js
   if (args[3] === 'help') {
-    selfArgs(args, message, prototype, cb);
+    selfArgs(args, message, prototype, ncb);
   } else if (!args[3]) {
-    noArgs(args, message, prototype, cb);
+    noArgs(args, message, prototype, ncb);
   } else {
-    otherArgs(args, message, prototype, cb);
+    otherArgs(args, message, prototype, ncb);
   }
 }
 

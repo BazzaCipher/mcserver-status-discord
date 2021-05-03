@@ -29,20 +29,23 @@ const exitHandler = function (err) {
   process.exit();
 };
 
-const returnHandler = function (err, message, channel) {
+function returnHandler (err, message, channel) {
   if (!process.argv.includes('-v') || !process.argv.includes('--verbose')) { message.content = null; }
 
   if (!channel && !message.channel) {
     return new Error('No channel specified');
   }
-  channel = channel || message.channel;
+  const nchannel = channel || message.channel;
 
-  if (!message) return channel.send('');
+  if (!message) {
+    nchannel.send('');
+    return new Error('No message');
+  }
   if (err) console.error(`\x1b[31mError ${err}\x1b[0m`);
 
-  channel.stopTyping();
+  nchannel.stopTyping();
 
-  return channel.send(message);
+  return nchannel.send(message);
 };
 
 client.once('ready', () => {
@@ -51,7 +54,7 @@ client.once('ready', () => {
   console.log(`\x1b[34;1m${config.name}\x1b[0m is now \x1b[32monline\x1b[0m`);
 });
 client.once('error', (e) => {
-  console.log(`Client returned error '${error.message}'`);
+  console.log(`Client returned error '${e.message}'`);
   process.exit(1);
 });
 
@@ -121,7 +124,7 @@ client.on('message', (message) => {
      * Post-filter
     */
 
-  // channel.startTyping()
+  channel.startTyping();
   console.log('Passing through switch');
 
   /* ---- */

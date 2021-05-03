@@ -17,27 +17,6 @@ const moment = require('moment');
 
 const endpoint = 'https://api.mcsrvstat.us/2/';
 
-// https://api.mcsrvstat.us/
-function formatMain(object, prototypeEmbed = new MessageEmbed()) {
-  // Must be able to handle both cases
-  if (typeof object !== 'object' || !(prototypeEmbed instanceof MessageEmbed)) {
-    console.log('\x1b[31mInternal Server Error: Invalid object or embed\x1b[0m');
-    appendFileSync(resolveLocal('../logs/error.log'),
-      `${new Date().toString()} | ${stringify(object, null, 4)} && ${stringify(prototypeEmbed, null, 4)}`);
-    return { title: 'Whoops! Internal server error' };
-  }
-
-  prototypeEmbed
-    .setTitle(`${object.hostname || object.ip}${object.port === 25565 ? '' : `:${object.port}`}`)
-    .setFooter('Courtesy of https://mcsrvstat.us/',
-      'https://mcsrvstat.us/img/minecraft.png');
-
-  if (object.online) {
-    return formatFound(object, prototypeEmbed);
-  }
-  return formatNotFound(object, prototypeEmbed);
-}
-
 function formatNotFound(object, prototypeEmbed) {
   return prototypeEmbed
     .setAuthor(`${prototypeEmbed.title} | Offline`, 'attachment://red-circle.png')
@@ -61,7 +40,7 @@ function formatFound(object, prototypeEmbed) {
     })
     .setDescription(object.version)
     .addField('Players', `**${object.players.online}**/${object.players.max} (${
-      (100 * object.players.online / object.players.max).toFixed(2)}%)`, true)
+      (100 * (object.players.online / object.players.max)).toFixed(2)}%)`, true)
     .addField('Latency', '...', true);
 
   if (object.software) prototypeEmbed.addField('Software', object.software);
@@ -69,19 +48,40 @@ function formatFound(object, prototypeEmbed) {
   return prototypeEmbed;
 }
 
+// https://api.mcsrvstat.us/
+function formatMain(object, prototypeEmbed = new MessageEmbed()) {
+  // Must be able to handle both cases
+  if (typeof object !== 'object' || !(prototypeEmbed instanceof MessageEmbed)) {
+    console.log('\x1b[31mInternal Server Error: Invalid object or embed\x1b[0m');
+    appendFileSync(resolveLocal('../logs/error.log'),
+      `${new Date().toString()} | ${stringify(object, null, 4)} && ${stringify(prototypeEmbed, null, 4)}`);
+    return { title: 'Whoops! Internal server error' };
+  }
+
+  prototypeEmbed
+    .setTitle(`${object.hostname || object.ip}${object.port === 25565 ? '' : `:${object.port}`}`)
+    .setFooter('Courtesy of https://mcsrvstat.us/',
+      'https://mcsrvstat.us/img/minecraft.png');
+
+  if (object.online) {
+    return formatFound(object, prototypeEmbed);
+  }
+  return formatNotFound(object, prototypeEmbed);
+}
+
 function mcstatus(messageArgs, message, options, cb) {
-  if (typeof options === 'function') { cb = options; }
-  const { guild, channel, content } = message;
+  const ncb = cb || options;
+  const { channel, content } = message;
 
   get(endpoint + messageArgs[2], (response) => {
     let res = '';
 
     response.setEncoding('utf8');
 
-    response.on('data', (data) => res += data);
+    response.on('data', (data) => { res += data; });
 
-    response.on('error', (e) => {
-      cb(null, 'It seems something has failed on our end :(. We\'re already working on a solution', channel);
+    response.on('error', () => {
+      ncb(null, 'It seems something has failed on our end :(. We\'re already working on a solution', channel);
       appendFileSync(resolveLocal('../logs/error.log'), new Date().toString()
                 + stringify(response, (key, val) => {
                   if (key === 'data') console.log(val, val instanceof Array);

@@ -24,8 +24,9 @@ const {
 } = require('./dep');
 const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo.js');
 
-const help = function (messageArgs, message, opts, cb) {
-  if (!opts.embed) { opts.embed = {}; }
+function help(messageArgs, message, opts, cb) {
+  const nopts = opts;
+  if (!nopts.embed) { nopts.embed = {}; }
 
   return cb(null, {
     content: 'Use set to set the settings for this bot',
@@ -35,17 +36,18 @@ const help = function (messageArgs, message, opts, cb) {
       footer: {
         text: `'${messageArgs[1]} settings' shows you the settings`,
       },
-      color: opts.embed.color,
+      color: nopts.embed.color,
     },
   }, message.channel);
-};
+}
 
-const display = function (messageArgs, message, opts, cb) {
+function display(messageArgs, message, opts, cb) {
+  const nopts = opts;
   const { guild, channel } = message;
   const { setting, info } = opts;
 
   if (setting) {
-    if (info.hasOwnProperty(setting)) {
+    if (Object.prototype.hasOwnProperty.call(info, setting)) {
       return cb(null, {
         content: `Settings | ${setting} | **${info[setting]}**`,
         embed: {
@@ -66,8 +68,8 @@ const display = function (messageArgs, message, opts, cb) {
       },
     }, channel);
 
-    opts.setting = null;
-    display(messageArgs, message, opts, cb);
+    nopts.setting = null;
+    display(messageArgs, message, nopts, cb);
   }
 
   const sentObject = {
@@ -80,25 +82,24 @@ const display = function (messageArgs, message, opts, cb) {
     },
   };
 
-  for (const e in info) {
+  Object.keys(info).forEach((e) => {
     sentObject.embed.fields.push({
       name: revertCamelcase(e),
       value: info[e],
       inline: true,
     });
-  }
+  });
 
   return cb(null, sentObject, channel);
-};
+}
 
-const set = function (messageArgs, message, opts, cb) {
+function set(messageArgs, message, opts, cb) {
   // Don't forget to eventually add Object.assign
 
   // if (message.author.client) // Set adequate permission matching
-  if (typeof opts === 'function') {
-    cb = opts;
-    opts = {};
-  }
+  const stinkypoopoo = typeof opts === 'function';
+  const nopts = (stinkypoopoo) ? {} : opts;
+  const vicente = stinkypoopoo ? opts : cb;
 
   const { channel } = message;
   const { id } = message.guild;
@@ -121,14 +122,14 @@ const set = function (messageArgs, message, opts, cb) {
   }
 
   if (!closest) {
-    opts.info = info;
-    return display(...arguments);
+    nopts.info = info;
+    return display(messageArgs, message, nopts, vicente);
   }
 
-  if (opts.hasOwnProperty('content') || !val) return help(...arguments);
+  if (Object.prototype.hasOwnProperty.call(nopts, 'content') || !val) return help(messageArgs, message, nopts, vicente);
 
   if (!isValid(closest, val)) {
-    return cb(null, {
+    return vicente(null, {
       content: `'${val}' isn't valid`,
       embed: {
         title: `${revertCamelcase(closest)}`,
@@ -140,7 +141,7 @@ const set = function (messageArgs, message, opts, cb) {
   coercedVal = coerceInput(closest, val);
 
   if (info[closest] === coercedVal) {
-    return cb(null, {
+    return vicente(null, {
       content: `'${val}' is identical to the current value`,
       embed: {
         title: revertCamelcase(closest),
@@ -161,7 +162,7 @@ const set = function (messageArgs, message, opts, cb) {
     }, channel);
   }
 
-  if (opts.unset) {
+  if (nopts.unset) {
     coercedVal = getGuildInfo('')[closest];
   }
 
@@ -171,8 +172,8 @@ const set = function (messageArgs, message, opts, cb) {
 
   if (output instanceof Error) {
     if (!(output instanceof Error)) { output = null; } // Mute client-side input errors
-    cb(output, {
-      content: opts.content || 'The setting is *unchanged*',
+    vicente(output, {
+      content: nopts.content || 'The setting is *unchanged*',
       embed: {
         title: revertCamelcase(closest),
         fields: [
@@ -190,7 +191,7 @@ const set = function (messageArgs, message, opts, cb) {
       },
     }, channel);
   } else {
-    cb(null, {
+    vicente(null, {
       content: 'The setting changed successfully',
       embed: {
         title: revertCamelcase(closest),
@@ -209,6 +210,6 @@ const set = function (messageArgs, message, opts, cb) {
       },
     }, channel);
   }
-};
+}
 
 module.exports = set;
