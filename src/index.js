@@ -92,8 +92,8 @@ client.on('message', (message) => {
   if (!guild) {
     console.log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
 
-    if (args[2] === 'help') { return currentCommands.get('help')(args.slice(0, 3), message, returnHandler); }
-    if (!args[3]) { return currentCommands.get('_')(args, message, returnHandler); }
+    if (args[2] === 'help') { currentCommands.get('help')(args.slice(0, 3), message, returnHandler); return; }
+    if (!args[3]) { currentCommands.get('_')(args, message, returnHandler); return; }
 
     returnHandler(null, {
       content: 'Add me to your server! ^-^',
@@ -106,6 +106,7 @@ client.on('message', (message) => {
         description: 'It\'s just me ;-;',
       },
     }, message.channel);
+    return;
   }
 
   if (args[1] !== getGuildInfo(guild.id).prefix) { return; }
@@ -168,6 +169,6 @@ process.on('uncaughtException', exitHandler);
 // Post handling
 
 createServer((_, res) => res.end('ok'))
-.listen(process.env.PORT || 3000);
+  .listen(process.env.PORT || 3000);
 
 client.login(process.env.CLIENT_TOKEN);
