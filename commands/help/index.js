@@ -17,7 +17,7 @@ const Commands = require('../../src/commands');
 
 const commands = new Commands();
 const commandsDesc = require('../../config/commandDesc.json');
-const { getGuildInfo } = require('../../config/guildInfo.json');
+const { getGuildInfo } = require('../../src/guildInfo');
 
 function selfArgs(_, message, sentObject, cb) {
   const resObject = sentObject;

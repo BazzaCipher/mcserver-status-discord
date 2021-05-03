@@ -172,7 +172,7 @@ function set(messageArgs, message, opts, cb) {
 
   if (output instanceof Error) {
     if (!(output instanceof Error)) { output = null; } // Mute client-side input errors
-    vicente(output, {
+    return vicente(output, {
       content: nopts.content || 'The setting is *unchanged*',
       embed: {
         title: revertCamelcase(closest),
@@ -190,26 +190,25 @@ function set(messageArgs, message, opts, cb) {
         ],
       },
     }, channel);
-  } else {
-    vicente(null, {
-      content: 'The setting changed successfully',
-      embed: {
-        title: revertCamelcase(closest),
-        fields: [
-          {
-            name: '*Previous*',
-            value: info[closest],
-            inline: true,
-          },
-          {
-            name: '**Current**',
-            value: coercedVal,
-            inline: true,
-          },
-        ],
-      },
-    }, channel);
   }
+  return vicente(null, {
+    content: 'The setting changed successfully',
+    embed: {
+      title: revertCamelcase(closest),
+      fields: [
+        {
+          name: '*Previous*',
+          value: info[closest],
+          inline: true,
+        },
+        {
+          name: '**Current**',
+          value: coercedVal,
+          inline: true,
+        },
+      ],
+    },
+  }, channel);
 }
 
 module.exports = set;

@@ -5,6 +5,8 @@
 const { writeFileSync, readFileSync } = require('fs');
 const { resolve } = require('path');
 
+const { log } = console;
+
 const guildInfoPath = resolve(__dirname, '../config/guildInfo.json');
 
 function getGuildInfo(guildid = true) {
@@ -26,7 +28,7 @@ function writeGuildInfo(guildid, property, value = '') {
 
   writeFileSync(guildInfoPath, JSON.stringify(info, null, 4), 'utf8');
 
-  console.log(`For guild \x1b[32m'${guildid}'\x1b[0m, writing '${value}' to '${property}'`);
+  log(`For guild \x1b[32m'${guildid}'\x1b[0m, writing '${value}' to '${property}'`);
 
   return guildInfoPath;
 }

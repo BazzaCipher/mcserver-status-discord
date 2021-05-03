@@ -25,11 +25,12 @@ class Commands {
 
     subCommands.set('_', require(resolve(root, 'index.js')));
 
-    for (const folder of folders) {
+    Array.from(folders.values()).forEach((folder) => {
       subCommands.set(folder.name, require(resolve(root, folder.name)));
-    }
+    });
 
-    return this.current = subCommands;
+    this.current = subCommands;
+    return this.current;
   }
 
   /**
