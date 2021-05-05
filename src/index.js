@@ -42,7 +42,7 @@ function returnHandler(err, message, channel) {
   }
   if (err) error(`\x1b[31mError ${err}\x1b[0m`);
 
-  setTimeout(nchannel.stopTyping(), 300);
+  setTimeout(nchannel.stopTyping.bind(nchannel), 300);
 
   return nchannel.send(message);
 }
@@ -87,7 +87,7 @@ client.on('message', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
     ...message.content.split(' ').map((e) => e.toLowerCase())];
-  const currentCommands = commands.current;
+  const currentCommands = commands.all();
 
   if (message.author.id === client.user.id) return;
 
@@ -131,7 +131,7 @@ client.on('message', (message) => {
   let options = {};
 
   // Remember to pass args, message, and [options]
-  log(`Reading from content: ${args}`);
+  log(`Reading from content: ${args.join(' ')}`);
   switch (args[2]) {
     case 'setting':
     case 'settings':
