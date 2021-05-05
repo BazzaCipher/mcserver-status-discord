@@ -43,7 +43,7 @@ function returnHandler(err, message, channel) {
   }
   if (err) error(`\x1b[31mError ${err}\x1b[0m`);
 
-  nchannel.stopTyping();
+  setTimeout(nchannel.stopTyping(), 300);
 
   return nchannel.send(message);
 }

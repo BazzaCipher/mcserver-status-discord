@@ -13,9 +13,7 @@
  * The equivalent of 'man'
  */
 
-const Commands = require('../../src/commands');
-
-const commands = new Commands();
+const commands = require('../../src/commands');
 const commandsDesc = require('../../config/commandDesc.json');
 const { getGuildInfo } = require('../../src/guildInfo');
 

@@ -4,44 +4,51 @@
 
 const { resolve } = require('path');
 const { readdirSync } = require('fs');
+const requireDir = require('require-dir');
+const { getGuildInfo } = require('./guildInfo');
+const commands = require('../commands');
 
-class Commands {
-  /**
-     *
-     * @param {boolean} delayLoad - Whether to reload the function immediately
-     */
-  constructor(delayLoad) {
-    if (!delayLoad) this.reload();
-  }
+function reload() {
+  const root = resolve(__dirname, '../commands/');
+  const subCommands = new Map();
+  const folders = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory());
 
-  /**
-     * reload - Used internally to reload the commands
-     */
-  reload() {
-    const root = resolve(__dirname, '../commands/');
-    const subCommands = new Map();
-    const folders = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory());
-    // Load index
+  // Load index
+  subCommands.set('_', commands);
 
-    subCommands.set('_', require(resolve(root, 'index.js')));
-
-    Array.from(folders.values()).forEach((folder) => {
-      subCommands.set(folder.name, require(resolve(root, folder.name)));
+  Object.keys(folders).forEach((folder) => {
+    const obj = requireDir(resolve('../commands', folder.name), {
+      noCache: true,
+      recurse: true,
     });
 
-    this.current = subCommands;
-    return this.current;
-  }
+    subCommands.set(folder.name, obj.index || {
+      _: ((args, message, opts, cb) => {
+      // Default unimplemented error function which will be the fallback
+      // as defined and used in index.js
+        const { content, embed, prefix } = opts;
 
-  /**
-     *
-     * @param {boolean} noReload - Recheck the available commands
-     */
-  all(noReload) {
-    if (!noReload) this.reload();
+        cb({
+          content: content || `*'${args[2]}' is unimplemented*`,
+          embed: embed || {
+            color: 0xFFD500,
+            title: `Error: Couldn't find command '*${args[2]}*'`,
+            footer: {
+              text: `'*${prefix || getGuildInfo('').prefix} help <command>*'`,
+            },
+          },
+        });
+      }),
+    });
+  });
 
-    return this.current;
-  }
+  return subCommands;
 }
 
-module.exports = Commands;
+function all() {
+  return reload();
+}
+
+module.exports = {
+  all,
+};
