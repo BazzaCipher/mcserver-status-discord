@@ -17,12 +17,12 @@ function reload() {
   subCommands.set('_', commands);
 
   Object.keys(folders).forEach((folder) => {
-    const obj = requireDir(resolve('../commands', folder.name), {
+    const obj = requireDir(resolve('../commands', folder), {
       noCache: true,
       recurse: true,
     });
 
-    subCommands.set(folder.name, obj.index || {
+    subCommands.set(folder, obj.index || {
       _: ((args, message, opts, cb) => {
       // Default unimplemented error function which will be the fallback
       // as defined and used in index.js
