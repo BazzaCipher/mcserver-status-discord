@@ -11,14 +11,13 @@ const { log, error } = console;
 const resolveLocal = resolve.bind(null, __dirname);
 
 const { getGuildInfo } = require('./guildInfo');
-const Commands = require('./commands');
+const commands = require('./commands');
 
 // Configuration files
 const config = require('../config/config.json');
 
 // Runtime variables
 
-const commands = new Commands(true);
 const client = new Client();
 
 // Function declarations
