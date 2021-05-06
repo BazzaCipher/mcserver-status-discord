@@ -131,7 +131,7 @@ client.on('message', (message) => {
   let options = {};
 
   // Remember to pass args, message, and [options]
-  log(`Reading from content: ${args.join(' ')}`);
+  log(`Reading from content: ${args.join(', ')}`);
   switch (args[2]) {
     case 'setting':
     case 'settings':

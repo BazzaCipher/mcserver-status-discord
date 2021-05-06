@@ -58,13 +58,13 @@ function noArgs(_, message, sentObject, cb) {
 }
 
 function otherArgs(messageArgs, message, prototype, cb) {
-  if (!commands.current.has(messageArgs[3])) {
+  if (!commands.all().has(messageArgs[3])) {
     return noArgs(
       ['mcstatus help', 'mcstatus', 'help'], message, prototype, cb,
     );
   }
 
-  const func = commands.current.get(messageArgs[3]);
+  const func = commands.all().get(messageArgs[3]);
 
   return func(messageArgs, message, prototype, cb);
 }
