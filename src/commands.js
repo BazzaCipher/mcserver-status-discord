@@ -13,7 +13,7 @@ const { log } = console;
 function reload() {
   const root = resolve(__dirname, '../commands/');
   const subCommands = new Map();
-  const folders = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory());
+  const folders = readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory());
 
   // Load index
   subCommands.set('_', commands);
@@ -42,9 +42,9 @@ function reload() {
       }),
     };
 
-    subCommands.set(folder.name, () => {
+    subCommands.set(folder.name, (...args) => {
       log(`Function identified: ${folder.name}`);
-      return givenFunc;
+      return givenFunc(...args);
     });
   });
 

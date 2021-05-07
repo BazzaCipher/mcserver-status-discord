@@ -86,7 +86,7 @@ env.config();
 client.on('message', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
-    ...message.content.split(' ').map((e) => e.toLowerCase())];
+    ...message.content.split(' ').map(e => e.toLowerCase())];
   const currentCommands = commands.all();
 
   if (message.author.id === client.user.id) return;
