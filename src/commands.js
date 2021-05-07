@@ -8,6 +8,8 @@ const requireDir = require('require-dir');
 const { getGuildInfo } = require('./guildInfo');
 const commands = require('../commands');
 
+const { log } = console;
+
 function reload() {
   const root = resolve(__dirname, '../commands/');
   const subCommands = new Map();
@@ -21,9 +23,8 @@ function reload() {
       noCache: true,
       recurse: true,
     });
-
-    subCommands.set(folder.name, obj.index || {
-      _: ((args, message, opts, cb) => {
+    const givenFunc = obj.index || {
+      [folder.name]: ((args, message, opts, cb) => {
       // Default unimplemented error function which will be the fallback
       // as defined and used in index.js
         const { content, embed, prefix } = opts;
@@ -39,6 +40,11 @@ function reload() {
           },
         });
       }),
+    };
+
+    subCommands.set(folder.name, () => {
+      log(`Function identified: ${folder.name}`);
+      return givenFunc;
     });
   });
 
