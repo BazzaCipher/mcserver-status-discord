@@ -43,8 +43,8 @@ function reload() {
     };
 
     subCommands.set(folder.name, (...args) => {
-      log(`Function identified: ${folder.name}`);
-      return givenFunc(...args);
+      log(`Function identified and running: ${folder.name}`);
+      return givenFunc[folder.name](...args);
     });
   });
 
