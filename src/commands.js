@@ -10,7 +10,7 @@ const commands = require('../commands');
 
 const { log } = console;
 
-function reload() {
+function all() {
   const root = resolve(__dirname, '../commands/');
   const subCommands = new Map();
   const folders = readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory());
@@ -49,10 +49,6 @@ function reload() {
   });
 
   return subCommands;
-}
-
-function all() {
-  return reload();
 }
 
 module.exports = {
