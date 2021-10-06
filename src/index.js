@@ -18,7 +18,10 @@ const config = require('../config/config.json');
 
 // Runtime variables
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS]});
+const intent = new Intents();
+intent.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING);
+
+const client = new Client({ intents: [intent] });
 
 // Function declarations
 
@@ -41,8 +44,6 @@ function returnHandler(err, message, channel) {
     return new Error('No message');
   }
   if (err) error(`\x1b[31mError ${err}\x1b[0m`);
-
-  setTimeout(nchannel.stopTyping.bind(nchannel), 300);
 
   return nchannel.send(message);
 }
@@ -83,7 +84,7 @@ client.once('error', (e) => {
 
 env.config();
 
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
     ...message.content.split(' ').map((e) => e.toLowerCase())];
@@ -123,7 +124,7 @@ client.on('message', (message) => {
      * Post-filter
     */
 
-  channel.startTyping();
+  channel.sendTyping();
   log('Passing through switch');
 
   /* ---- */

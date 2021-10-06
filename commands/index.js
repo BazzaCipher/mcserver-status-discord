@@ -5,6 +5,7 @@
  */
 
 const stringify = require('json-stringify-safe');
+const moment = require('moment');
 const { readFileSync, appendFileSync } = require('fs');
 const { ping } = require('tcp-ping');
 const { get } = require('https');
@@ -14,8 +15,6 @@ const { resolve } = require('path');
 const { log, error } = console;
 
 const resolveLocal = resolve.bind(null, __dirname);
-
-const moment = require('moment');
 
 const endpoint = 'https://api.mcsrvstat.us/2/';
 

@@ -75,7 +75,7 @@ function help(args, message, opts, cb) {
   const ncb = cb || opts;
 
   const prototype = {
-    content: content || `*'${nPrefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
+    content: content || `'${nPrefix} <*ip or name*>' tells you if that Minecraft server is up`,
     embed: embed || {
       color: 0xFFD500,
       title: `Help ~ ${args.slice(3).join(' ') || 'All'}`,
