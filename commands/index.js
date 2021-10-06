@@ -136,7 +136,7 @@ function mcstatus(messageArgs, message, options, cb) {
           }, (err, data) => {
             if (err) throw new Error(`Error when pinging ${jsonres.hostname || jsonres.ip}`);
             lastMessage.embeds[0].fields.splice(
-              lastMessage.embeds[0].fields.findIndex(e => e.name.toLowerCase() === 'latency'),
+              lastMessage.embeds[0].fields.findIndex((e) => e.name.toLowerCase() === 'latency'),
               1,
               {
                 name: 'Latency',

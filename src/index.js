@@ -2,7 +2,7 @@
 
 const env = require('dotenv');
 const { createServer } = require('http');
-const { Client } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
 
@@ -18,7 +18,7 @@ const config = require('../config/config.json');
 
 // Runtime variables
 
-const client = new Client();
+const client = new Client({ intents: [Intents.FLAGS.GUILDS]});
 
 // Function declarations
 
@@ -86,7 +86,7 @@ env.config();
 client.on('message', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
-    ...message.content.split(' ').map(e => e.toLowerCase())];
+    ...message.content.split(' ').map((e) => e.toLowerCase())];
   const currentCommands = commands.all();
 
   if (message.author.id === client.user.id) return;

@@ -22,7 +22,7 @@ const moment = require('moment');
 const {
   isValid, coerceInput, revertCamelcase, closestSetting,
 } = require('./dep');
-const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo.js');
+const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo');
 
 function help(messageArgs, message, opts, cb) {
   const nopts = opts;

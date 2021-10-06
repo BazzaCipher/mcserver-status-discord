@@ -13,7 +13,7 @@ const { log } = console;
 function all() {
   const root = resolve(__dirname, '../commands/');
   const subCommands = new Map();
-  const folders = readdirSync(root, { withFileTypes: true }).filter(e => e.isDirectory());
+  const folders = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory());
 
   // Load index
   subCommands.set('_', commands);

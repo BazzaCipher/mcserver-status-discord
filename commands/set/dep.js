@@ -27,7 +27,7 @@ function revertCamelcase(string) {
 
   return string
     .split(/(?=[A-Z])/)
-    .map((e, i) => (i === 0 ? e.replace(/^([a-z])/, v => v.toUpperCase()) : e))
+    .map((e, i) => (i === 0 ? e.replace(/^([a-z])/, (v) => v.toUpperCase()) : e))
     .join(' ');
 }
 

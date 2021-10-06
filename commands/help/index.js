@@ -51,7 +51,7 @@ function noArgs(_, message, sentObject, cb) {
 
   Promise.all(commandReturns)
     .then((fieldObjects) => {
-      fieldObjects.forEach(obj => sentObject.embed.fields.push(obj));
+      fieldObjects.forEach((obj) => sentObject.embed.fields.push(obj));
 
       cb(null, sentObject, message.channel);
     });
