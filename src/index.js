@@ -1,4 +1,6 @@
-// Dependencies
+/**
+ * Dependencies
+ */ 
 
 const env = require('dotenv');
 const { createServer } = require('http');
@@ -16,14 +18,21 @@ const commands = require('./commands');
 // Configuration files
 const config = require('../config/config.json');
 
-// Runtime variables
+/**
+ * Runtime variables and other initialisations
+ */
 
 const intent = new Intents();
 intent.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING);
 
 const client = new Client({ intents: [intent] });
 
-// Function declarations
+// Set up with process environmental variables
+env.config();
+
+/**
+ * Function declarations
+ */
 
 function exitHandler(err) {
   if (err instanceof Error) error(err);
@@ -58,12 +67,6 @@ client.once('error', (e) => {
   process.exit(1);
 });
 
-// Every hour
-
-// setInterval(() => {
-//     commands.reload()
-// }, 3600000)
-
 // client.on("guildCreate", guild => {
 //     let channelID;
 //     let channels = guild.channels;
@@ -80,18 +83,16 @@ client.once('error', (e) => {
 //     channel.send(`Thanks for inviting me into this server!`);
 // });
 
-// Init
-
-env.config();
-
 client.on('messageCreate', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
     ...message.content.split(' ').map((e) => e.toLowerCase())];
   const currentCommands = commands.all();
 
+  // Don't respond to myself to myself to myself to myself
   if (message.author.id === client.user.id) return;
 
+  // This is technically meant to occur in a DM to encourage further market participation
   if (!guild) {
     log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
 
@@ -120,18 +121,18 @@ client.on('messageCreate', (message) => {
   appendFileSync(resolveLocal('../logs/error.log'),
     `${new Date().toString()} | #${message.channel.name} @ ${guild.id} - ${content}\r\n`);
 
-  /*
-     * Post-filter
-    */
+  /**
+   * Post-filter
+   * The rest is executing the command specified in the message content
+   */
 
   channel.sendTyping();
-  log('Passing through switch');
 
   /* ---- */
 
   let options = {};
 
-  // Remember to pass args, message, and [options]
+  // Remember to pass args (cleaned message content), message, and [options]
   log(`Reading from content: ${args.join(', ')}`);
   switch (args[2]) {
     case 'setting':
@@ -158,7 +159,9 @@ client.on('messageCreate', (message) => {
   }
 });
 
-// Exit handling
+/**
+ * Exit handling
+ */
 
 // CTRL-C
 process.on('SIGINT', exitHandler);
@@ -175,4 +178,9 @@ process.on('uncaughtException', exitHandler);
 createServer((_, res) => res.end('ok'))
   .listen(process.env.PORT || 3000);
 
-client.login(process.env.CLIENT_TOKEN);
+client.login(process.env.CLIENT_TOKEN)
+  .catch(err => {
+    error("\x1b[31;1mCould not log in sucessfully. Exiting...\x1b[0m");
+    error(err);
+    process.exit(1)
+  })

@@ -49,7 +49,7 @@ function formatFound(object, prototypeEmbed) {
   return prototypeEmbed;
 }
 
-// https://api.mcsrvstat.us/
+// Attempts to create a base object from the one received from remote
 function formatMain(object, prototypeEmbed = new MessageEmbed()) {
   // Must be able to handle both cases
   if (typeof object !== 'object' || !(prototypeEmbed instanceof MessageEmbed)) {
@@ -74,6 +74,7 @@ function mcstatus(messageArgs, message, options, cb) {
   const ncb = cb || options;
   const { channel, content } = message;
 
+  // Attempts to GET the status of the specified server by appending the two
   get(endpoint + messageArgs[2], (response) => {
     let res = '';
 
@@ -144,8 +145,8 @@ function mcstatus(messageArgs, message, options, cb) {
               },
             );
           });
-        })
-        .finally(() => { channel.stopTyping(); });
+        });
+      // .finally(() => { channel.stopTyping(); });
     });
   });
 }
