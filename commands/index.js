@@ -18,7 +18,7 @@ const resolveLocal = resolve.bind(null, __dirname);
 const endpoint = 'https://api.mcsrvstat.us/2/';
 
 function formatNotFound(object, newMessage) {
-  const embed = newMessage.embeds.shift();
+  const embed = newMessage.embeds[0];
   embed
     .setAuthor(`${embed.title} | Offline`, 'attachment://red-circle.png')
     .setColor(14493440)
@@ -30,13 +30,11 @@ function formatNotFound(object, newMessage) {
     attachment: readFileSync(resolveLocal('../files/red-circle.png')),
   });
 
-  newMessage.embeds.unshift(embed);
-
   return newMessage;
 }
 
 function formatFound(object, newMessage) {
-  const embed = newMessage.embeds.shift(); // Most messages only have one embed
+  const embed = newMessage.embeds[0]; // Most messages only have one embed
 
   embed
     .setAuthor(`${embed.title}  |  Online`, 'attachment://green-circle.png')
@@ -54,14 +52,12 @@ function formatFound(object, newMessage) {
 
   if (object.software) embed.addField('Software', object.software);
 
-  newMessage.embeds.unshift(embed);
-
   return newMessage;
 }
 
 // Attempts to create a base object from the one received from remote
 function formatMain(object, newMessage) {
-  const embed = newMessage.embeds.shift() || new MessageEmbed(); // It wasn't initalised before this
+  const embed = newMessage.embeds.shift() || new MessageEmbed(); // Make sure it is initialized
 
   embed
     .setTitle(`${object.hostname || object.ip}${object.port === 25565 ? '' : `:${object.port}`}`)

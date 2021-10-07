@@ -23,7 +23,7 @@ function all() {
       noCache: true,
       recurse: true,
     });
-    const givenFunc = obj.index || {
+    const givenFunc = obj.index === {} ? {
       [folder.name]: ((args, message, opts, cb) => {
       // Default unimplemented error function which will be the fallback
       // as defined and used in index.js
@@ -40,7 +40,7 @@ function all() {
           },
         });
       }),
-    };
+    } : obj.index;
 
     subCommands.set(folder.name, (...args) => {
       log(`Function identified: ${folder.name}`);
