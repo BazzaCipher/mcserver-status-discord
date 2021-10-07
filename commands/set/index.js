@@ -102,7 +102,7 @@ function set(messageArgs, message, opts, cb) {
 
   // if (message.author.client) // Set adequate permission matching
   const stinkypoopoo = typeof opts === 'function';
-  const nopts = stinkypoopoo ? { color: "red" } : opts;
+  const nopts = stinkypoopoo ? { color: 'red' } : opts;
   const vicente = stinkypoopoo ? opts : cb;
 
   const { channel } = message;
