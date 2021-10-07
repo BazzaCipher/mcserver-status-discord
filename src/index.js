@@ -1,10 +1,10 @@
 /**
  * Dependencies
- */ 
+ */
 
 const env = require('dotenv');
 const { createServer } = require('http');
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, Permissions } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
 
@@ -92,7 +92,7 @@ client.on('messageCreate', (message) => {
   // Don't respond to myself to myself to myself to myself
   if (message.author.id === client.user.id) return;
 
-  // This is technically meant to occur in a DM to encourage further market participation
+  // This is meant to occur in a DM to encourage adoption of this bot in servers
   if (!guild) {
     log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
 
@@ -113,9 +113,16 @@ client.on('messageCreate', (message) => {
     return;
   }
 
+  /**
+   * Post-init of listener
+   */
+  // If the prefix is not matching
   if (args[1] !== getGuildInfo(guild.id).prefix) { return; }
+
   // Check write permission
-  //
+  if (!guild.me.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) {
+    log(`Don't have permission to send messages: ${guild.name}`);
+  }
 
   log(`${new Date().toString()} | #${message.channel.name} @ ${guild.id} - \x1b[32m${content}\x1b[0m`);
   appendFileSync(resolveLocal('../logs/error.log'),
@@ -179,8 +186,8 @@ createServer((_, res) => res.end('ok'))
   .listen(process.env.PORT || 3000);
 
 client.login(process.env.CLIENT_TOKEN)
-  .catch(err => {
-    error("\x1b[31;1mCould not log in sucessfully. Exiting...\x1b[0m");
+  .catch((err) => {
+    error('\x1b[31;1mCould not log in sucessfully. Exiting...\x1b[0m');
     error(err);
-    process.exit(1)
-  })
+    process.exit(1);
+  });
