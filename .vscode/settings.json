@@ -3,5 +3,6 @@
         "jsonres",
         "localtime",
         "motd"
-    ]
+    ],
+    "files.eol": "\n"
 }

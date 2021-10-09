@@ -20,7 +20,7 @@ const { getGuildInfo } = require('../../src/guildInfo');
 function selfArgs(_, message, sentObject, cb) {
   const resObject = sentObject;
 
-  resObject.embed.description = commandsDesc.help;
+  resObject.embeds[0].description = commandsDesc.help;
 
   if (typeof sentObject === 'function') return sentObject(null, resObject, message.channel);
   return cb(null, resObject, message.channel);
@@ -33,9 +33,9 @@ function noArgs(_, message, sentObject, cb) {
   // Ignore special case
   helpCommands.delete('_');
 
-  if (typeof resObject.embed.fields !== 'object') resObject.embed.fields = [];
+  if (typeof resObject.embeds[0].fields !== 'object') resObject.embeds[0].fields = [];
 
-  resObject.embed.fields.push({
+  resObject.embeds[0].fields.push({
     name: '\'mcstatus < url | ip >\'',
     value: '\'mcstatus mc.hypixel.net\' or \'mcstatus 127.0.0.1:30\'',
   });
@@ -44,27 +44,27 @@ function noArgs(_, message, sentObject, cb) {
     commandReturns.push(new Promise((resolve) => {
       resolve({
         name: `${key}`,
-        value: commandsDesc[key],
+        value: commandsDesc[key] || 'NO DESCRIPTION', // If the end user sees this, go to commandDesc.json and add a description
       });
     }));
   });
 
   Promise.all(commandReturns)
     .then((fieldObjects) => {
-      fieldObjects.forEach((obj) => sentObject.embed.fields.push(obj));
+      fieldObjects.forEach((obj) => sentObject.embeds[0].fields.push(obj));
 
       cb(null, sentObject, message.channel);
     });
 }
 
 function otherArgs(messageArgs, message, prototype, cb) {
-  if (!commands.current.has(messageArgs[3])) {
+  if (!commands.all().has(messageArgs[3])) {
     return noArgs(
       ['mcstatus help', 'mcstatus', 'help'], message, prototype, cb,
     );
   }
 
-  const func = commands.current.get(messageArgs[3]);
+  const func = commands.all().get(messageArgs[3]);
 
   return func(messageArgs, message, prototype, cb);
 }
@@ -75,14 +75,14 @@ function help(args, message, opts, cb) {
   const ncb = cb || opts;
 
   const prototype = {
-    content: content || `*'${nPrefix} <\\*ip or name\\*>' tells you if that Minecraft server is up*`,
-    embed: embed || {
+    content: content || `'${nPrefix} <*ip or name*>' tells you if that Minecraft server is up`,
+    embeds: [embed || {
       color: 0xFFD500,
       title: `Help ~ ${args.slice(3).join(' ') || 'All'}`,
       footer: {
         text: `'*${nPrefix} help <command>*'`,
       },
-    },
+    }],
   };
 
   // Each manages their own output; the cb is the returnHandler in ./index.js

@@ -22,22 +22,22 @@ const moment = require('moment');
 const {
   isValid, coerceInput, revertCamelcase, closestSetting,
 } = require('./dep');
-const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo.js');
+const { getGuildInfo, writeGuildInfo } = require('../../src/guildInfo');
 
 function help(messageArgs, message, opts, cb) {
   const nopts = opts;
-  if (!nopts.embed) { nopts.embed = {}; }
+  if (nopts.embeds !== [] || !nopts.embeds[0]) { nopts.embeds = []; }
 
   return cb(null, {
     content: 'Use set to set the settings for this bot',
-    embed: {
+    embeds: [{
       title: 'Help | Set',
       description: 'Set the right setting',
       footer: {
         text: `'${messageArgs[1]} settings' shows you the settings`,
       },
-      color: nopts.embed.color,
-    },
+      color: '#8B2252',
+    }],
   }, message.channel);
 }
 
@@ -50,22 +50,22 @@ function display(messageArgs, message, opts, cb) {
     if (Object.prototype.hasOwnProperty.call(info, setting)) {
       return cb(null, {
         content: `Settings | ${setting} | **${info[setting]}**`,
-        embed: {
+        embeds: [{
           title: `*${messageArgs.slice(3).join(' ')}*`,
           description: 'Settings',
-          color: opts.embed.color,
+          color: '#8B2252',
           fields: [{
             name: info[setting],
           }],
-        },
+        }],
       }, channel);
     }
 
     cb(null, {
       content: `It seems like '${setting}' isn't valid`,
-      embed: {
+      embeds: [{
         title: `It seems like '${setting}' can't be found`,
-      },
+      }],
     }, channel);
 
     nopts.setting = null;
@@ -74,16 +74,20 @@ function display(messageArgs, message, opts, cb) {
 
   const sentObject = {
     content: 'All of the modifiable settings',
-    embed: {
+    embeds: [{
       title: `*${guild.name}* | Settings`,
       description: 'All the settings, one by one',
       timestamp: moment().utcOffset(info.utcOffset || 0),
       fields: [],
-    },
+    }],
   };
 
   Object.keys(info).forEach((e) => {
-    sentObject.embed.fields.push({
+    if (!sentObject.embeds[0].fields) {
+      sentObject.embeds[0].fields = [];
+    }
+
+    sentObject.embeds[0].fields.push({
       name: revertCamelcase(e),
       value: info[e],
       inline: true,
@@ -98,7 +102,7 @@ function set(messageArgs, message, opts, cb) {
 
   // if (message.author.client) // Set adequate permission matching
   const stinkypoopoo = typeof opts === 'function';
-  const nopts = (stinkypoopoo) ? {} : opts;
+  const nopts = stinkypoopoo ? { color: 'red' } : opts;
   const vicente = stinkypoopoo ? opts : cb;
 
   const { channel } = message;
@@ -131,10 +135,10 @@ function set(messageArgs, message, opts, cb) {
   if (!isValid(closest, val)) {
     return vicente(null, {
       content: `'${val}' isn't valid`,
-      embed: {
+      embeds: [{
         title: `${revertCamelcase(closest)}`,
         description: 'Invalid value',
-      },
+      }],
     }, channel);
   }
 
@@ -143,7 +147,7 @@ function set(messageArgs, message, opts, cb) {
   if (info[closest] === coercedVal) {
     return vicente(null, {
       content: `'${val}' is identical to the current value`,
-      embed: {
+      embeds: [{
         title: revertCamelcase(closest),
         description: 'Tell me if...',
         fields: [
@@ -158,7 +162,7 @@ function set(messageArgs, message, opts, cb) {
             inline: true,
           },
         ],
-      },
+      }],
     }, channel);
   }
 
@@ -174,7 +178,7 @@ function set(messageArgs, message, opts, cb) {
     if (!(output instanceof Error)) { output = null; } // Mute client-side input errors
     return vicente(output, {
       content: nopts.content || 'The setting is *unchanged*',
-      embed: {
+      embeds: [{
         title: revertCamelcase(closest),
         fields: [
           {
@@ -188,12 +192,12 @@ function set(messageArgs, message, opts, cb) {
             inline: true,
           },
         ],
-      },
+      }],
     }, channel);
   }
   return vicente(null, {
     content: 'The setting changed successfully',
-    embed: {
+    embeds: [{
       title: revertCamelcase(closest),
       fields: [
         {
@@ -207,7 +211,7 @@ function set(messageArgs, message, opts, cb) {
           inline: true,
         },
       ],
-    },
+    }],
   }, channel);
 }
 

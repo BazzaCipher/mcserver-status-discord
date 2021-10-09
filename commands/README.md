@@ -2,7 +2,9 @@
 
 ## Root
 
-At the root of the folders is an index.js file which is the 'help' function
+At the root of the folders is an index.js file. This is the entry point which
+each package/subcommand should strive to keep consistent, typesafe and secure.
+At the root of the command folder is a file which is the actual function of the bot.
 of this bot. Each subcommand can be located in a subdirectory and the package.json
 'main' property points to that provider. Only the top-level directories need to be
 defined/accessed

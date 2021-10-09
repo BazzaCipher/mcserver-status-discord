@@ -1,7 +1,7 @@
 /**
  * This is the primary function of this bot.
  *
- * Accepts hostname or ip
+ * Accepts hostname or ip and returns the status of the server
  */
 
 const stringify = require('json-stringify-safe');
@@ -15,66 +15,78 @@ const { log, error } = console;
 
 const resolveLocal = resolve.bind(null, __dirname);
 
-const moment = require('moment');
-
 const endpoint = 'https://api.mcsrvstat.us/2/';
 
-function formatNotFound(object, prototypeEmbed) {
-  return prototypeEmbed
-    .setAuthor(`${prototypeEmbed.title} | Offline`, 'attachment://red-circle.png')
+function formatNotFound(object, newMessage) {
+  const embed = newMessage.embeds[0];
+  embed
+    .setAuthor(`${embed.title} | Offline`, 'attachment://red-circle.png')
     .setColor(14493440)
     .setTitle('Server unresponsive')
-    .setDescription(`Tested **${object.hostname || object.ip}** : ${object.port}`)
-    .attachFiles({
-      name: 'red-circle.png',
-      attachment: readFileSync(resolveLocal('../files/red-circle.png')),
-    });
+    .setDescription(`Tested **${object.hostname || object.ip}** : ${object.port}`);
+
+  newMessage.files.push({
+    name: 'red-circle.png',
+    attachment: readFileSync(resolveLocal('../files/red-circle.png')),
+  });
+
+  return newMessage;
 }
 
-function formatFound(object, prototypeEmbed) {
-  prototypeEmbed
-    .setAuthor(`${prototypeEmbed.title}  |  Online`, 'attachment://green-circle.png')
+function formatFound(object, newMessage) {
+  const embed = newMessage.embeds[0]; // Most messages only have one embed
+
+  embed
+    .setAuthor(`${embed.title}  |  Online`, 'attachment://green-circle.png')
     .setColor(56688)
-    .setTitle(object.motd.clean)
-    .attachFiles({
-      name: 'green-circle.png',
-      attachment: readFileSync(resolveLocal('../files/green-circle.png')),
-    })
+    .setTitle(object.motd.clean.join('\r\n'))
     .setDescription(object.version)
     .addField('Players', `**${object.players.online}**/${object.players.max} (${
       (100 * (object.players.online / object.players.max)).toFixed(2)}%)`, true)
     .addField('Latency', '...', true);
 
-  if (object.software) prototypeEmbed.addField('Software', object.software);
+  newMessage.files.push({
+    name: 'green-circle.png',
+    attachment: readFileSync(resolveLocal('../files/green-circle.png')),
+  });
 
-  return prototypeEmbed;
+  if (object.software) embed.addField('Software', object.software);
+
+  return newMessage;
 }
 
-// https://api.mcsrvstat.us/
-function formatMain(object, prototypeEmbed = new MessageEmbed()) {
-  // Must be able to handle both cases
-  if (typeof object !== 'object' || !(prototypeEmbed instanceof MessageEmbed)) {
-    log('\x1b[31mInternal Server Error: Invalid object or embed\x1b[0m');
-    appendFileSync(resolveLocal('../logs/error.log'),
-      `${new Date().toString()} | ${stringify(object, null, 4)} && ${stringify(prototypeEmbed, null, 4)}`);
-    return { title: 'Whoops! Internal server error' };
-  }
+// Attempts to create a base object from the one received from remote
+function formatMain(object, newMessage) {
+  const embed = newMessage.embeds.shift() || new MessageEmbed(); // Make sure it is initialized
 
-  prototypeEmbed
+  embed
     .setTitle(`${object.hostname || object.ip}${object.port === 25565 ? '' : `:${object.port}`}`)
     .setFooter('Courtesy of https://mcsrvstat.us/',
       'https://mcsrvstat.us/img/minecraft.png');
 
+  // Reattach embed to new message Object
+  newMessage.embeds.unshift(embed);
+
+  // Two functions which just use different colours and formattings
   if (object.online) {
-    return formatFound(object, prototypeEmbed);
+    return formatFound(object, newMessage);
   }
-  return formatNotFound(object, prototypeEmbed);
+  return formatNotFound(object, newMessage);
 }
 
+/**
+ * All this does is print a rich embed of the status of the specified minecraft server.
+ * It serves as the entry point of this file and is the only thing 'exposed'.
+ * @param {array} messageArgs - An array of the initial arguments; go to src/index.js for info
+ * @param {object} message - Discord.js message
+ * @param {object} options
+ * @param {function} cb
+ */
 function mcstatus(messageArgs, message, options, cb) {
-  const ncb = cb || options;
+  const ncb = cb || options; // Shuffle options and callback in case options are not defined
   const { channel, content } = message;
 
+  // Attempts to GET the status of the specified server by appending the two
   get(endpoint + messageArgs[2], (response) => {
     let res = '';
 
@@ -101,24 +113,23 @@ function mcstatus(messageArgs, message, options, cb) {
 
       let matches;
       const jsonres = JSON.parse(res);
-      const sentObject = {};
+      let sentObject = {
+        content: `\`${jsonres.hostname || jsonres.ip}\` is **${jsonres.online ? 'online' : 'offline'}**`,
+        embeds: [new MessageEmbed()],
+        files: [],
+      };
 
-      sentObject.content = `\`${jsonres.hostname || jsonres.ip}\` is **${jsonres.online ? 'online' : 'offline'}**`;
-
-      sentObject.embed = formatMain(
+      sentObject = formatMain(
         jsonres,
-        new MessageEmbed({
-          timestamp: moment().toISOString(),
-          thumbnail: {},
-        }),
+        sentObject,
       );
 
       if (jsonres.icon) {
         matches = jsonres.icon.match(/data:(\w+\/(\w+));base64,(.+)/);
         // [1] MIME-Type [2] Extension [3] Base-64 image data
 
-        sentObject.embed.thumbnail.url = `attachment://icon.${matches[2]}`;
-        sentObject.embed.files.push({
+        sentObject.embeds[0].thumbnail = { url: `attachment://icon.${matches[2]}` };
+        sentObject.files.push({
           name: `icon.${matches[2]}`,
           attachment: Buffer.from(matches[3], 'base64'),
         });
@@ -145,8 +156,8 @@ function mcstatus(messageArgs, message, options, cb) {
               },
             );
           });
-        })
-        .finally(() => { channel.stopTyping(); });
+        });
+      // .finally(() => { channel.stopTyping(); });
     });
   });
 }

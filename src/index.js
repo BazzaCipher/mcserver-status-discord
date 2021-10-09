@@ -1,8 +1,10 @@
-// Dependencies
+/**
+ * Dependencies
+ */
 
 const env = require('dotenv');
 const { createServer } = require('http');
-const { Client } = require('discord.js');
+const { Client, Intents, Permissions } = require('discord.js');
 const { appendFileSync } = require('fs');
 const { resolve } = require('path');
 
@@ -16,11 +18,21 @@ const commands = require('./commands');
 // Configuration files
 const config = require('../config/config.json');
 
-// Runtime variables
+/**
+ * Runtime variables and other initialisations
+ */
 
-const client = new Client();
+const intent = new Intents();
+intent.add(Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_TYPING);
 
-// Function declarations
+const client = new Client({ intents: [intent] });
+
+// Set up with process environmental variables
+env.config();
+
+/**
+ * Function declarations
+ */
 
 function exitHandler(err) {
   if (err instanceof Error) error(err);
@@ -42,8 +54,6 @@ function returnHandler(err, message, channel) {
   }
   if (err) error(`\x1b[31mError ${err}\x1b[0m`);
 
-  setTimeout(nchannel.stopTyping(), 300);
-
   return nchannel.send(message);
 }
 
@@ -56,12 +66,6 @@ client.once('error', (e) => {
   log(`Client returned error '${e.message}'`);
   process.exit(1);
 });
-
-// Every hour
-
-// setInterval(() => {
-//     commands.reload()
-// }, 3600000)
 
 // client.on("guildCreate", guild => {
 //     let channelID;
@@ -79,18 +83,16 @@ client.once('error', (e) => {
 //     channel.send(`Thanks for inviting me into this server!`);
 // });
 
-// Init
-
-env.config();
-
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
   const { channel, guild, content } = message;
   const args = [message.content.toLowerCase(),
     ...message.content.split(' ').map((e) => e.toLowerCase())];
-  const currentCommands = commands.current;
+  const currentCommands = commands.all();
 
+  // Don't respond to myself to myself to myself to myself
   if (message.author.id === client.user.id) return;
 
+  // This is meant to occur in a DM to encourage adoption of this bot in servers
   if (!guild) {
     log(`${new Date().toString()} | @ ${message.author.username} - \x1b[32m${content}\x1b[0m`);
 
@@ -111,27 +113,34 @@ client.on('message', (message) => {
     return;
   }
 
+  /**
+   * Post-init of listener
+   */
+  // If the prefix is not matching
   if (args[1] !== getGuildInfo(guild.id).prefix) { return; }
+
   // Check write permission
-  //
+  if (!guild.me.permissionsIn(channel).has(Permissions.FLAGS.SEND_MESSAGES)) {
+    log(`Don't have permission to send messages: ${guild.name}`);
+  }
 
   log(`${new Date().toString()} | #${message.channel.name} @ ${guild.id} - \x1b[32m${content}\x1b[0m`);
   appendFileSync(resolveLocal('../logs/error.log'),
     `${new Date().toString()} | #${message.channel.name} @ ${guild.id} - ${content}\r\n`);
 
-  /*
-     * Post-filter
-    */
+  /**
+   * Post-filter
+   * The rest is executing the command specified in the message content
+   */
 
-  channel.startTyping();
-  log('Passing through switch');
+  channel.sendTyping();
 
   /* ---- */
 
   let options = {};
 
-  // Remember to pass args, message, and [options]
-  log(`Reading from content: ${args}`);
+  // Remember to pass args (cleaned message content), message, and [options]
+  log(`Reading from content: ${args.join(', ')}`);
   switch (args[2]) {
     case 'setting':
     case 'settings':
@@ -157,7 +166,9 @@ client.on('message', (message) => {
   }
 });
 
-// Exit handling
+/**
+ * Exit handling
+ */
 
 // CTRL-C
 process.on('SIGINT', exitHandler);
@@ -174,4 +185,10 @@ process.on('uncaughtException', exitHandler);
 createServer((_, res) => res.end('ok'))
   .listen(process.env.PORT || 3000);
 
-client.login(process.env.CLIENT_TOKEN);
+client.login(process.env.CLIENT_TOKEN)
+  .catch((err) => {
+    error('\x1b[31;1mCould not log in successfully. Exiting...\x1b[0m');
+    error(err);
+    error("Suggestion: set the environmental variable 'CLIENT_TOKEN' to the token provided by Discord Inc.");
+    process.exit(1);
+  });

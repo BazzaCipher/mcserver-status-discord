@@ -1,4 +1,5 @@
 {
     "help": "Helps you find commands",
+    "nickname": "Lets you nickname minecraft servers",
 	"set": "Sets this server's configuration (e.g. local time, prefix, etc)"
 }

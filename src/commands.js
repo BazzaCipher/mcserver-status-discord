@@ -8,7 +8,9 @@ const requireDir = require('require-dir');
 const { getGuildInfo } = require('./guildInfo');
 const commands = require('../commands');
 
-function reload() {
+const { log } = console;
+
+function all() {
   const root = resolve(__dirname, '../commands/');
   const subCommands = new Map();
   const folders = readdirSync(root, { withFileTypes: true }).filter((e) => e.isDirectory());
@@ -16,14 +18,13 @@ function reload() {
   // Load index
   subCommands.set('_', commands);
 
-  Object.keys(folders).forEach((folder) => {
-    const obj = requireDir(resolve('../commands', folder.name), {
+  folders.forEach((folder) => {
+    const obj = requireDir(resolve(__dirname, '../commands', folder.name), {
       noCache: true,
       recurse: true,
     });
-
-    subCommands.set(folder.name, obj.index || {
-      _: ((args, message, opts, cb) => {
+    const givenFunc = obj.index === {} ? {
+      [folder.name]: ((args, message, opts, cb) => {
       // Default unimplemented error function which will be the fallback
       // as defined and used in index.js
         const { content, embed, prefix } = opts;
@@ -39,14 +40,15 @@ function reload() {
           },
         });
       }),
+    } : obj.index;
+
+    subCommands.set(folder.name, (...args) => {
+      log(`Function identified: ${folder.name}`);
+      return givenFunc(...args);
     });
   });
 
   return subCommands;
-}
-
-function all() {
-  return reload();
 }
 
 module.exports = {

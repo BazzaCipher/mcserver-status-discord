@@ -20,8 +20,8 @@
   "author": "cipherix",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.5.3",
-    "dotenv": "^8.2.0",
+    "discord.js": "^13.2.0",
+    "dotenv": "^9.0.2",
     "fuzzaldrin": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "moment": "^2.29.1",
@@ -29,8 +29,8 @@
     "tcp-ping": "^0.1.1"
   },
   "devDependencies": {
-    "eslint": "^7.25.0",
+    "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
-    "eslint-plugin-import": "^2.22.1"
+    "eslint-plugin-import": "^2.24.2"
   }
 }
