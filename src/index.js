@@ -187,7 +187,8 @@ createServer((_, res) => res.end('ok'))
 
 client.login(process.env.CLIENT_TOKEN)
   .catch((err) => {
-    error('\x1b[31;1mCould not log in sucessfully. Exiting...\x1b[0m');
+    error('\x1b[31;1mCould not log in successfully. Exiting...\x1b[0m');
     error(err);
+    error("Suggestion: set the environmental variable 'CLIENT_TOKEN' to the token provided by Discord Inc.");
     process.exit(1);
   });
