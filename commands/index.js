@@ -151,7 +151,7 @@ function mcstatus(messageArgs, message, options, cb) {
               1,
               {
                 name: 'Latency',
-                value: data.avg,
+                value: Math.round(data.avg / 1000),
                 inline: true,
               },
             );
