@@ -157,7 +157,6 @@ function mcstatus(messageArgs, message, options, cb) {
             );
           });
         });
-      // .finally(() => { channel.stopTyping(); });
     });
   });
 }
