@@ -6,7 +6,7 @@
 
 const stringify = require('json-stringify-safe');
 const { readFileSync, appendFileSync } = require('fs');
-const { ping } = require('tcp-ping');
+const { pingWithPromise } = require('minecraft-ping-js');
 const { get } = require('https');
 const { MessageEmbed } = require('discord.js');
 const { resolve } = require('path');
@@ -17,7 +17,19 @@ const resolveLocal = resolve.bind(null, __dirname);
 
 const endpoint = 'https://api.mcsrvstat.us/2/';
 
-function formatNotFound(object, newMessage) {
+async function getLatencyTo(opts) {
+  const PING_COUNT = 20;
+  const pings = [];
+
+  for (let i = 0; i < PING_COUNT; i += 1) {
+    pings.push(pingWithPromise(opts.address || opts.ip, opts.port || 25565));
+  }
+
+  const values = await Promise.all(pings);
+  return (values.reduce((acc, curr) => acc + curr.ping, 0) / PING_COUNT).toFixed(1);
+}
+
+async function formatNotFound(object, newMessage) {
   const embed = newMessage.embeds[0];
   embed
     .setAuthor(`${embed.title} | Offline`, 'attachment://red-circle.png')
@@ -33,7 +45,7 @@ function formatNotFound(object, newMessage) {
   return newMessage;
 }
 
-function formatFound(object, newMessage) {
+async function formatFound(object, newMessage) {
   const embed = newMessage.embeds[0]; // Most messages only have one embed
 
   embed
@@ -42,8 +54,7 @@ function formatFound(object, newMessage) {
     .setTitle(object.motd.clean.join('\r\n'))
     .setDescription(object.version)
     .addField('Players', `**${object.players.online}**/${object.players.max} (${
-      (100 * (object.players.online / object.players.max)).toFixed(2)}%)`, true)
-    .addField('Latency', '...', true);
+      (100 * (object.players.online / object.players.max)).toFixed(2)}%)`, true);
 
   newMessage.files.push({
     name: 'green-circle.png',
@@ -52,11 +63,16 @@ function formatFound(object, newMessage) {
 
   if (object.software) embed.addField('Software', object.software);
 
+  embed.addField('Latency', `${await getLatencyTo({
+    address: object.hostname || object.ip,
+    port: object.port,
+  })} ms`, true);
+
   return newMessage;
 }
 
 // Attempts to create a base object from the one received from remote
-function formatMain(object, newMessage) {
+async function formatMain(object, newMessage) {
   const embed = newMessage.embeds.shift() || new MessageEmbed(); // Make sure it is initialized
 
   embed
@@ -105,7 +121,7 @@ function mcstatus(messageArgs, message, options, cb) {
       error(`\x1b[31mReceived ${response.statusMessage} from '${endpoint}${messageArgs[2]}'\x1b[0m`);
     });
 
-    response.once('end', () => {
+    response.once('end', async () => {
       if (res.startsWith('429')) {
         channel.send(`\`${messageArgs[2]}\` isn't a valid external IP or name`);
         return log(`Rejected \x1b[33m${content}\x1b[0m`);
@@ -119,7 +135,7 @@ function mcstatus(messageArgs, message, options, cb) {
         files: [],
       };
 
-      sentObject = formatMain(
+      sentObject = await formatMain(
         jsonres,
         sentObject,
       );
@@ -135,28 +151,7 @@ function mcstatus(messageArgs, message, options, cb) {
         });
       }
 
-      return channel.send(sentObject)
-        .then((lastMessage) => {
-          if (!jsonres.online) return;
-
-          // Edit to show latency
-          ping({
-            address: jsonres.hostname || jsonres.ip,
-            port: jsonres.port,
-            attempts: 20,
-          }, (err, data) => {
-            if (err) throw new Error(`Error when pinging ${jsonres.hostname || jsonres.ip}`);
-            lastMessage.embeds[0].fields.splice(
-              lastMessage.embeds[0].fields.findIndex((e) => e.name.toLowerCase() === 'latency'),
-              1,
-              {
-                name: 'Latency',
-                value: Math.round(data.avg / 1000),
-                inline: true,
-              },
-            );
-          });
-        });
+      return channel.send(sentObject);
     });
   });
 }

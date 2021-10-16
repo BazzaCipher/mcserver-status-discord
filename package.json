@@ -10,6 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --fix .",
+    "debug": "node --stack-trace-limit=100 ./src/index.js",
     "start": "node ./src/index.js"
   },
   "keywords": [
@@ -24,9 +25,9 @@
     "dotenv": "^9.0.2",
     "fuzzaldrin": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
+    "minecraft-ping-js": "^1.0.2",
     "moment": "^2.29.1",
-    "require-dir": "^1.2.0",
-    "tcp-ping": "^0.1.1"
+    "require-dir": "^1.2.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
