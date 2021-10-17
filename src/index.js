@@ -139,6 +139,15 @@ client.on('messageCreate', (message) => {
 
   let options = {};
 
+  /* ---- */
+
+  // Always make sure that it's a valid URl.
+  if (/[A-Za-z0-9.]\.[A-Za-z0-9.]/g.test(args[2])) {
+    // Special case, modifies message post-send
+    currentCommands.get('_')(args, message, options, returnHandler);
+    return;
+  }
+
   // Remember to pass args (cleaned message content), message, and [options]
   log(`Reading from content: ${args.join(', ')}`);
   switch (args[2]) {
@@ -155,13 +164,9 @@ client.on('messageCreate', (message) => {
     case '127.0.0.1':
     case undefined:
     case '?':
+    default: // Should be an edge case when nothing they type makes sense
       options = { prefix: getGuildInfo(guild.id).prefix };
       currentCommands.get('help')(args, message, options, returnHandler);
-      break;
-
-    default:
-      // Special case, modifies message post-send
-      currentCommands.get('_')(args, message, options, returnHandler);
       break;
   }
 });
