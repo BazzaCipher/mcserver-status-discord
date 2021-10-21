@@ -43,7 +43,7 @@ function all() {
     } : obj.index;
 
     subCommands.set(folder.name, (...args) => {
-      log(`Function identified: ${folder.name}`);
+      log(`Function identified and run: ${folder.name}`);
       return givenFunc(...args);
     });
   });
